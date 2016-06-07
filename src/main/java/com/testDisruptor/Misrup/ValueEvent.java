@@ -18,6 +18,7 @@ public final class ValueEvent {
 
 	public final static EventFactory<ValueEvent> EVENT_FACTORY = new EventFactory<ValueEvent>() {
 		public ValueEvent newInstance() {
+			System.out.println("创建实例");
 			return new ValueEvent();
 		}
 	};

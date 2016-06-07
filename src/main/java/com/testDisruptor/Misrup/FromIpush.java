@@ -1,5 +1,7 @@
 package com.testDisruptor.Misrup;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.Executors;  
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;  
 import com.lmax.disruptor.BlockingWaitStrategy;  
@@ -19,7 +21,7 @@ public class FromIpush {
         //几个workerHandler 表示有几个消费者  
         WorkHandler<ValueEvent> workHandler = new WorkHandler<ValueEvent>() {  
             public void onEvent(ValueEvent event) throws Exception {  
-                System.out.println(Thread.currentThread().getName()+" "+ReflectionToStringBuilder.toString(event));  
+                System.out.println(Thread.currentThread().getName()+" ---------  "+ReflectionToStringBuilder.toString(event)+" *****************************");  
             }  
         };  
           
@@ -29,7 +31,7 @@ public class FromIpush {
         //生产后唤醒.  
         //而生产者在生产时要先申请slot，而这个slot位置不能高于最后一个消费者的位置，否则会覆盖没有消费的slot，如果大于消费者的最后一个slot，则进行自旋等待.  
         WorkerPool<ValueEvent> workerPool = new WorkerPool<ValueEvent>(buffer,  
-                buffer.newBarrier(), new IgnoreExceptionHandler(), workHandler,workHandler,workHandler,workHandler);  
+                buffer.newBarrier(), new IgnoreExceptionHandler(), workHandler,workHandler,workHandler,workHandler,workHandler);  
         //每个消费者，也就是 workProcessor都有一个sequence，表示上一个消费的位置,这个在初始化时都是-1  
         Sequence[] sequences = workerPool.getWorkerSequences();   
         //将其保存在ringBuffer中的 sequencer 中，在为生产申请slot时要用到,也就是在为生产者申请slot时不能大于此数组中的最小值,否则产生覆盖  
@@ -40,21 +42,27 @@ public class FromIpush {
           
         /* 
          * 对于生产者生产都是以 下面方式　 
-         *       
-         *      long next = ringBuffer.next(); 
-         *       
-         *          try{ 
-         *              Event event = ringBuffer.get(next); 
-         *              event.doxxx     //相当于生产  
-         *          }finally{ 
-         *              ringBuffer.publis(next);        //将slot 发布，必须 
-         *          } 
-         *       
-         *       
-         * */  
+             
+        while(1==1){
+        	
+               long next = buffer.next(); 
+               SimpleDateFormat sf = new SimpleDateFormat("HH:mm:sss");
+               String time = sf.format(new Date());
+                
+                   try{ 
+                	   ValueEvent event = buffer.get(next); 
+                       event.setValue("AA "+time);     //相当于生产  
+                   }finally{ 
+                	   System.out.println("AA "+time);  
+                	   buffer.publish(next);        //将slot 发布，必须 
+                   } 
+                
+        }*/
+                
+         
           
         System.out.println("开始生产");  
-        for (int i = 0; i < 10; i++) {  
+        for (int i = 0; i < 20; i++) {  
             long next = buffer.next();  
             try {  
                 ValueEvent event = buffer.get(next);  

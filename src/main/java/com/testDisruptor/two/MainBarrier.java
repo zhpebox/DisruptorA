@@ -49,15 +49,15 @@ public class MainBarrier {
 //		disruptor.handleEventsWith(eventHandler);
 //		disruptor.handleEventsWithWorkerPool(HandlerInitial.getHandleList(4));//
 		
-//		EventHandlerGroup<LongEvent> eventHandleGroup = disruptor.handleEventsWithWorkerPool(HandlerInitial.getHandleList(2)[0],HandlerInitialTwo.getHandleList(2)[0]);
-		EventHandlerGroup<LongEvent> eventHandleGroup = disruptor.handleEventsWithWorkerPool(HandlerInitial.getHandleList(4));
+		//1、2并行，随机执行一个
+		EventHandlerGroup<LongEvent> eventHandleGroup = disruptor.handleEventsWithWorkerPool(HandlerInitial.getHandleList(2)[0],HandlerInitialTwo.getHandleList(2)[0]);
+//		disruptor.handleEventsWithWorkerPool(HandlerInitial.getHandleList(1));
 		//与53行并行,无先后顺序
-		disruptor.handleEventsWithWorkerPool(HandlerInitialTwo.getHandleList(4));
+//		EventHandlerGroup<LongEvent> eventHandleGroup = disruptor.handleEventsWithWorkerPool(HandlerInitialTwo.getHandleList(1));
 		
 
 		//与53行串行,有先后顺序
-//		EventHandler<LongEvent> eventHandlerTwo = new LongEventHandlerTwo();
-//		eventHandleGroup.thenHandleEventsWithWorkerPool(HandlerInitialTwo.getHandleList(4));
+		eventHandleGroup.thenHandleEventsWithWorkerPool(HandlerInitialFinal.getHandleList(1));
 		
 		
 		disruptor.start();

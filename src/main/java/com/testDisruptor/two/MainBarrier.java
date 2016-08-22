@@ -6,18 +6,18 @@ import java.util.concurrent.Executors;
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
+import com.lmax.disruptor.Sequencer;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.EventHandlerGroup;
 import com.lmax.disruptor.dsl.ProducerType;
 
-
 /**
- * 单消费者
+ * 多消费者并行，串行
  * @author Administrator
  *
  */
-public class Main {
+public class MainBarrier {
 
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
@@ -25,7 +25,7 @@ public class Main {
 		EventFactory<LongEvent> eventFactory = new LongEventFactory();
 		
 		/*
-		 * Disruptor 通过 java.util.concurrent.ExecutorService 提供的线程来触发 Consumer 的事件处理。例如：
+		 *  Disruptor 通过 java.util.concurrent.ExecutorService 提供的线程来触发 Consumer 的事件处理。例如：
 		 *	ExecutorService executor = Executors.newCachedThreadPool();
 		 */
 		ExecutorService executor = Executors.newCachedThreadPool();//newSingleThreadExecutor();
@@ -45,17 +45,21 @@ public class Main {
 		 * WaitStrategy YIELDING_WAIT = new YieldingWaitStrategy();
 		 */ 
 		        
-		EventHandler<LongEvent> eventHandler = new LongEventHandler();
-		disruptor.handleEventsWith(eventHandler);
+//		EventHandler<LongEvent> eventHandler = new LongEventHandler();
+//		disruptor.handleEventsWith(eventHandler);
 //		disruptor.handleEventsWithWorkerPool(HandlerInitial.getHandleList(4));//
 		
 //		EventHandlerGroup<LongEvent> eventHandleGroup = disruptor.handleEventsWithWorkerPool(HandlerInitial.getHandleList(2)[0],HandlerInitialTwo.getHandleList(2)[0]);
-//		EventHandlerGroup<LongEvent> eventHandleGroup = disruptor.handleEventsWithWorkerPool(HandlerInitial.getHandleList(4));
+		EventHandlerGroup<LongEvent> eventHandleGroup = disruptor.handleEventsWithWorkerPool(HandlerInitial.getHandleList(4));
+		//与53行并行,无先后顺序
+		disruptor.handleEventsWithWorkerPool(HandlerInitialTwo.getHandleList(4));
 		
-		
+
+		//与53行串行,有先后顺序
 //		EventHandler<LongEvent> eventHandlerTwo = new LongEventHandlerTwo();
-//		disruptor.handleEventsWithWorkerPool(HandlerInitialTwo.getHandleList(4));
-		        
+//		eventHandleGroup.thenHandleEventsWithWorkerPool(HandlerInitialTwo.getHandleList(4));
+		
+		
 		disruptor.start();
 		System.out.println("start");
 		//发布事件
@@ -70,7 +74,7 @@ public class Main {
 		 *  如果某个请求的 sequence 未被提交，将会堵塞后续的发布操作或者其它的 producer。
 		 */
 		RingBuffer<LongEvent> ringBuffer = disruptor.getRingBuffer();
-		for(int i =0;i<1;i++){
+		for(int i =0;i<100;i++){
 			
 			long sequence = ringBuffer.next(); //请求下一个事件序号
 //			System.out.println(sequence);

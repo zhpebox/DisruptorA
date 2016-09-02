@@ -43,7 +43,7 @@ public class Disruptor1Factory {
 		
 		disruptor.handleEventsWith(step1EventHandler);
 		//test java8
-//		disruptor.handleEventsWith((event,sequence,endOfBatch)->System.out.println("Eventa:"+event));
+		disruptor.handleEventsWith((event,sequence,endOfBatch)->System.out.println("Eventa:"+event));
 		
 		
 		disruptor.start();

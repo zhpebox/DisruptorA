@@ -8,6 +8,10 @@ public class Step1Event {
 	private int id;
 	private String name;
 	
+	public Step1Event(){
+		System.out.println("ev*");
+	}
+	
 	public int getId() {
 		return id;
 	}

@@ -23,7 +23,9 @@ public class DisruptorTranslator {
 	public void onData(Step1Event event1){
 		Disruptor<Step2Event> disruptor2 = dis2factory.startDis2();
 		RingBuffer<Step2Event> ringBuffer = disruptor2.getRingBuffer();
-		ringBuffer.publishEvent(translator, event1);
+//		ringBuffer.publishEvent(translator, event1);
+		//test java8
+		ringBuffer.publishEvent((event,sequence,buffer)->event.setMessage("sss"));
 		disruptor2.shutdown();
 	}
 	

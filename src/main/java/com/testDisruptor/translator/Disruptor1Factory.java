@@ -31,16 +31,21 @@ public class Disruptor1Factory {
 	
 	@SuppressWarnings({ "deprecation", "unchecked" })
 	public void newInstance() {
-		disruptor = new Disruptor<Step1Event>(
-				event1Factory, bufferSize, executor, ProducerType.SINGLE,
-				new YieldingWaitStrategy());
+//		disruptor = new Disruptor<Step1Event>(
+//				event1Factory, bufferSize, executor, ProducerType.SINGLE,
+//				new YieldingWaitStrategy());
+		//test java8
+		disruptor = new Disruptor<Step1Event>(Step1Event::new, bufferSize, executor);
+		
 
 //		Step1EventHanler[] step1EventHandlers = new Step1EventHanler[numberofconsumer];
 		Step1EventHanler step1EventHandler = new Step1EventHanler();
 		
-//		disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
 		disruptor.handleEventsWith(step1EventHandler);
-//		disruptor.handleEventsWithWorkerPool(step1EventHandler);
+		//test java8
+//		disruptor.handleEventsWith((event,sequence,endOfBatch)->System.out.println("Eventa:"+event));
+		
+		
 		disruptor.start();
 
 		System.out.println("step1 disruptor start……");
